@@ -31,7 +31,7 @@ export default function ReportsPage() {
     }
   };
 
-  const generate = async (type: str) => {
+  const generate = async (type: string) => {
     setGenerating(true);
     try {
       const res = await fetch("http://localhost:8000/api/v1/reports", {
@@ -48,7 +48,7 @@ export default function ReportsPage() {
     setGenerating(false);
   };
 
-  const viewReport = async (id: str) => {
+  const viewReport = async (id: string) => {
     try {
       const res = await fetch(`http://localhost:8000/api/v1/reports/${id}`);
       if (res.ok) {
@@ -60,7 +60,7 @@ export default function ReportsPage() {
     }
   };
 
-  const downloadReport = (id: str) => {
+  const downloadReport = (id: string) => {
     window.open(`http://localhost:8000/api/v1/reports/${id}/download`, "_blank");
   };
 
