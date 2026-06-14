@@ -81,3 +81,21 @@ def generate_cfo_chat_response(messages: list) -> str:
     except Exception as e:
         print(f"Error generating chat response: {e}")
         return "I'm currently experiencing a connection issue. Please try again in a moment."
+
+def generate_report_content(report_type: str) -> str:
+    """Generates a realistic mock report using Groq."""
+    prompt = f"""
+You are ForecastPilot AI, an expert AI CFO.
+Generate a concise {report_type} for our marketing performance.
+Include a brief executive summary and 3 bullet points with key insights.
+Keep it strictly under 150 words.
+"""
+    try:
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model=settings.AI_MODEL,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error generating report: {e}")
+        return "Error generating report summary."
