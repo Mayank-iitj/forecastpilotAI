@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # AI
     OPENAI_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
-    GROQ_API_KEY: str = "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"
+    GROQ_API_KEY: Optional[str] = None
     AI_MODEL: str = "llama-3.1-8b-instant"
 
     # CORS
