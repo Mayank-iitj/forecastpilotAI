@@ -5,10 +5,9 @@ import { motion } from "framer-motion";
 import { HelpCircle, ArrowRight, TrendingUp, TrendingDown } from "lucide-react";
 
 const presets = [
-  { question: "What if Google spend increases 30%?", params: { google_spend_change: 30 } },
-  { question: "What if Meta ROAS drops 15%?", params: { meta_roas_change: -15 } },
-  { question: "What if conversion rate improves 10%?", params: { conversion_rate_change: 10 } },
-  { question: "What if we cut Display budget by 50%?", params: { display_budget_change: -50 } },
+  { question: "What if Google Ads spend increases 30%?", params: { google_spend_change: 30 } },
+  { question: "What if Meta Ads ROAS drops 15%?", params: { meta_roas_change: -15 } },
+  { question: "What if we cut Microsoft Ads budget by 50%?", params: { ms_budget_change: -50 } },
 ];
 
 export default function WhatIfPage() {
@@ -17,6 +16,26 @@ export default function WhatIfPage() {
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [googleBudget, setGoogleBudget] = useState<number>(0);
+  const [metaBudget, setMetaBudget] = useState<number>(0);
+  const [msBudget, setMsBudget] = useState<number>(0);
+
+  const runSliderScenario = () => {
+    let q = "What if ";
+    const parts = [];
+    if (googleBudget !== 0) parts.push(`Google Ads spend changes by ${googleBudget}%`);
+    if (metaBudget !== 0) parts.push(`Meta Ads spend changes by ${metaBudget}%`);
+    if (msBudget !== 0) parts.push(`Microsoft Ads spend changes by ${msBudget}%`);
+    
+    if (parts.length === 0) {
+      setError("Please adjust at least one budget slider.");
+      return;
+    }
+    
+    q += parts.join(" and ") + "?";
+    runScenario(q);
+  };
 
   const runScenario = async (q: string) => {
     setSelectedQ(q);
@@ -54,8 +73,41 @@ export default function WhatIfPage() {
         <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">Instantly recompute forecasts based on hypothetical scenarios</p>
       </div>
 
+      {/* Budget Adjustments */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+        {[
+          { name: "Google Ads", val: googleBudget, set: setGoogleBudget, color: "blue" },
+          { name: "Meta Ads", val: metaBudget, set: setMetaBudget, color: "indigo" },
+          { name: "Microsoft Ads", val: msBudget, set: setMsBudget, color: "cyan" },
+        ].map((ch, i) => (
+          <div key={i} className="p-5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="font-medium text-sm">{ch.name} Budget</span>
+              <span className={`text-sm font-bold ${ch.val > 0 ? "text-green-500" : ch.val < 0 ? "text-red-500" : "text-gray-400"}`}>
+                {ch.val > 0 ? "+" : ""}{ch.val}%
+              </span>
+            </div>
+            <input 
+              type="range" 
+              min="-100" 
+              max="100" 
+              step="5"
+              value={ch.val}
+              onChange={(e) => ch.set(parseInt(e.target.value))}
+              className="w-full accent-blue-500"
+            />
+          </div>
+        ))}
+        <div className="sm:col-span-3 flex justify-end">
+          <button onClick={runSliderScenario} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:from-blue-500 hover:to-purple-500 transition-all flex items-center gap-2">
+            <ArrowRight className="w-4 h-4" /> Compute Slider Scenario
+          </button>
+        </div>
+      </div>
+
       {/* Presets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <h2 className="text-lg font-semibold mt-8 mb-4">Or use Natural Language</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {presets.map((p, i) => (
           <motion.button key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             onClick={() => runScenario(p.question)}

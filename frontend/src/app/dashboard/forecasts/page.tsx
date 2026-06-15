@@ -23,8 +23,8 @@ const generateForecastData = (days: number) => {
 };
 
 const metrics = [
-  { label: "Total Revenue", value: "$153,000", change: "+5.2%", trend: "up" },
-  { label: "Avg ROAS", value: "5.24x", change: "+0.3x", trend: "up" },
+  { label: "Aggregate Revenue (Google, Meta, MS Ads)", value: "$153,000", change: "+5.2%", trend: "up" },
+  { label: "Blended ROAS", value: "5.24x", change: "+0.3x", trend: "up" },
   { label: "Total Spend", value: "$29,262", change: "+2.1%", trend: "up" },
   { label: "Conversions", value: "1,800", change: "+8.3%", trend: "up" },
   { label: "Avg AOV", value: "$85.00", change: "-1.2%", trend: "down" },
@@ -89,7 +89,7 @@ export default function ForecastsPage() {
       >
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="font-semibold">Revenue Forecast — {period} Days</h3>
+            <h3 className="font-semibold">Aggregate Revenue Forecast (Google, Meta, MS Ads) — {period} Days</h3>
             <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">Expected + Optimistic + Pessimistic with 95% CI</p>
           </div>
           <div className="flex items-center gap-4 text-xs">
