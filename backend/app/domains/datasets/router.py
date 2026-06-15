@@ -145,6 +145,7 @@ def load_demo_datasets():
                 "column_count": len(data[0].keys()),
                 "quality_score": validation.quality_score,
                 "validation": validation.dict() if hasattr(validation, "dict") else validation,
+                "preview": data[:10],
             }
         except Exception as e:
             print(f"Error loading demo dataset {filename}: {e}")
