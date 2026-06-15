@@ -93,45 +93,70 @@ export default function DatasetsPage() {
 
 
 
-      {/* Available Datasets */}
-      <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6">
-        <h3 className="font-semibold mb-4">Available Source Datasets</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[hsl(var(--border))]">
-                <th className="text-left py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">File</th>
-                <th className="text-left py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">Rows</th>
-                <th className="text-left py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">Quality</th>
-                <th className="text-left py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">Date</th>
-                <th className="text-left py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">Status</th>
-                <th className="text-right py-3 px-4 text-[hsl(var(--muted-foreground))] font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {datasets.map((ds) => (
-                <tr key={ds.id} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--accent))] transition-colors">
-                  <td className="py-3 px-4 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-green-400" />{ds.filename || ds.name}</td>
-                  <td className="py-3 px-4 font-mono-numbers">{(ds.row_count || ds.rows || 0).toLocaleString()}</td>
-                  <td className="py-3 px-4"><span className={`font-mono-numbers ${(ds.quality_score || ds.quality || 0) > 90 ? "text-green-400" : "text-amber-400"}`}>{(ds.quality_score || ds.quality || 0)}%</span></td>
-                  <td className="py-3 px-4 text-[hsl(var(--muted-foreground))]">{ds.date || "Today"}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ds.status === "validated" ? "risk-low" : "risk-medium"}`}>
-                      {ds.status}
+      {/* Explicit Datasets Display */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { name: "Meta Ads Performance", file: "meta_ads_campaign_stats.csv", icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z", color: "text-blue-500", bg: "bg-blue-500/10" },
+          { name: "Google Ads Campaigns", file: "google_ads_campaign_stats.csv", icon: "M12.545,10.239v3.821h5.445c-0.712,2.315-2.757,3.951-5.445,3.951c-3.131,0-5.674-2.543-5.674-5.674s2.543-5.674,5.674-5.674c1.465,0,2.793,0.56,3.805,1.482l2.842-2.842C17.477,3.582,15.17,2.5,12.545,2.5C7.265,2.5,3,6.765,3,12.045s4.265,9.545,9.545,9.545c5.503,0,9.155-3.874,9.155-9.303c0-0.655-0.076-1.285-0.211-1.888L12.545,10.239z", color: "text-green-500", bg: "bg-green-500/10" },
+          { name: "Bing Ads Stats", file: "bing_campaign_stats.csv", icon: "M11.4 24l-7.3-2.3V8.8L11.4 6v18zm1.2-18.4L20 2v21.5l-7.4 2.5V5.6z", color: "text-cyan-500", bg: "bg-cyan-500/10" }
+        ].map((source) => {
+          const dsInfo = datasets.find(d => d.filename === source.file || d.name === source.file) || {};
+          const isLoaded = !!dsInfo.id;
+          return (
+            <motion.div 
+              key={source.file}
+              whileHover={{ y: -4 }}
+              className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden flex flex-col"
+            >
+              <div className="p-6 flex-1">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`w-12 h-12 rounded-xl ${source.bg} flex items-center justify-center`}>
+                    <svg className={`w-6 h-6 ${source.color}`} viewBox="0 0 24 24" fill="currentColor">
+                      <path d={source.icon} />
+                    </svg>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${isLoaded ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                    {isLoaded ? 'Validated' : 'Pending'}
+                  </span>
+                </div>
+                <h3 className="font-bold text-lg">{source.name}</h3>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1 flex items-center gap-1">
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  {source.file}
+                </p>
+                
+                <div className="mt-6 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[hsl(var(--muted-foreground))]">Total Rows</span>
+                    <span className="font-mono-numbers font-medium">{isLoaded ? (dsInfo.row_count || dsInfo.rows).toLocaleString() : '---'}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[hsl(var(--muted-foreground))]">Quality Score</span>
+                    <span className={`font-mono-numbers font-medium ${isLoaded && (dsInfo.quality_score || dsInfo.quality) > 90 ? "text-green-400" : ""}`}>
+                      {isLoaded ? `${dsInfo.quality_score || dsInfo.quality}%` : '---'}
                     </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => handleView(ds.id)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors disabled:opacity-50" disabled={loadingView} title="View Data"><Eye className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
-                      <button onClick={() => handleDownload(ds.id, ds.filename || ds.name)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors" title="Download CSV"><DownloadCloud className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors" title="Delete Dataset"><Trash2 className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 flex justify-end gap-2">
+                 <button 
+                  onClick={() => isLoaded ? handleView(dsInfo.id) : null} 
+                  disabled={!isLoaded || loadingView}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-[hsl(var(--background))] transition-colors disabled:opacity-50"
+                >
+                  <Eye className="w-4 h-4" /> Preview
+                </button>
+                <button 
+                  onClick={() => isLoaded ? handleDownload(dsInfo.id, source.file) : null}
+                  disabled={!isLoaded}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg hover:bg-[hsl(var(--background))] transition-colors disabled:opacity-50"
+                >
+                  <DownloadCloud className="w-4 h-4" /> Download
+                </button>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {viewingDataset && (

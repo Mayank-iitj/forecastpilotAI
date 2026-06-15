@@ -31,12 +31,18 @@ def run_monte_carlo_simulation(
     # Drop NaNs
     returns_df = daily_df.replace([np.inf, -np.inf], np.nan).dropna()
 
-    # Empirical stats
-    mu_rev = returns_df['revenue_return'].mean()
-    sigma_rev = returns_df['revenue_return'].std()
+    # Empirical stats with fallbacks
+    mu_rev = returns_df['revenue_return'].mean() if not returns_df.empty else 0.001
+    sigma_rev = returns_df['revenue_return'].std() if not returns_df.empty else 0.05
 
-    mu_roas = returns_df['roas_return'].mean()
-    sigma_roas = returns_df['roas_return'].std()
+    mu_roas = returns_df['roas_return'].mean() if not returns_df.empty else 0.0
+    sigma_roas = returns_df['roas_return'].std() if not returns_df.empty else 0.05
+    
+    # Fill NaN from std if there was only 1 row
+    if pd.isna(sigma_rev) or sigma_rev == 0: sigma_rev = 0.05
+    if pd.isna(sigma_roas) or sigma_roas == 0: sigma_roas = 0.05
+    if pd.isna(mu_rev): mu_rev = 0.001
+    if pd.isna(mu_roas): mu_roas = 0.0
 
     # Current Base Values
     current_revenue = daily_df['revenue'].iloc[-1]

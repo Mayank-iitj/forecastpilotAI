@@ -14,10 +14,6 @@ CHANNELS = {
     "google_ads": {"color": "#4285F4"},
     "meta_ads": {"color": "#1877F2"},
     "microsoft_ads": {"color": "#00A4EF"},
-    "organic_search": {"color": "#34A853"},
-    "affiliate": {"color": "#FF6D01"},
-    "email": {"color": "#9333EA"},
-    "display": {"color": "#F59E0B"},
 }
 
 def generate_forecast(
