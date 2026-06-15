@@ -31,11 +31,7 @@ class Settings(BaseSettings):
 
     # CORS
     FRONTEND_URL: str = "http://localhost:3000"
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://forecastpilot.vercel.app",
-    ]
+    ALLOWED_ORIGINS: list[str] = ["*"]
 
     # File Upload
     MAX_UPLOAD_SIZE_MB: int = 50
