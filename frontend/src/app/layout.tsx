@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "ForecastPilot AI — AI-Powered Revenue Forecasting",
@@ -43,6 +44,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster theme="dark" richColors />
           </ThemeProvider>
         </ClerkProvider>
       </body>

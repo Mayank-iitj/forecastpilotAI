@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import EvilEye from "@/components/EvilEye";
@@ -28,7 +27,7 @@ export default function ProductPage() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-600">Predictions</span>.
           </h1>
           <p className="max-w-2xl mx-auto text-[#8B8B9E] text-lg md:text-xl leading-relaxed">
-            ForecastPilot AI isn't just another dashboard. It's a predictive intelligence engine built to act as your autonomous Marketing CFO.
+            ForecastPilot AI isn&apos;t just another dashboard. It&apos;s a predictive intelligence engine built to act as your autonomous Marketing CFO.
           </p>
         </div>
 
@@ -66,7 +65,7 @@ export default function ProductPage() {
             </div>
             <h3 className="text-2xl font-bold mb-4">Scenario Modeling</h3>
             <p className="text-[#8B8B9E] leading-relaxed">
-              "What happens if we increase TikTok spend by 20% next week?" Our scenario engine runs Monte Carlo simulations to show you the probable outcomes of every strategic decision.
+              &quot;What happens if we increase TikTok spend by 20% next week?&quot; Our scenario engine runs Monte Carlo simulations to show you the probable outcomes of every strategic decision.
             </p>
           </div>
         </div>

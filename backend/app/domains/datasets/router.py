@@ -1,5 +1,6 @@
 """Datasets Domain — Router"""
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi.responses import Response
 from pydantic import BaseModel
 from typing import Optional
 import json
@@ -111,6 +112,42 @@ def _validate_csv_data(data: list[dict]) -> DatasetValidation:
 # Demo dataset storage
 _datasets = {}
 
+def load_demo_datasets():
+    import os
+    import csv
+    import io
+    demo_dir = "demo_datasets"
+    if not os.path.exists(demo_dir):
+        return
+        
+    for filename in os.listdir(demo_dir):
+        if not filename.endswith(".csv"):
+            continue
+            
+        filepath = os.path.join(demo_dir, filename)
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
+                reader = csv.DictReader(io.StringIO(content))
+                data = list(reader)
+                
+            if not data:
+                continue
+                
+            validation = _validate_csv_data(data)
+            dataset_id = f"ds-{len(_datasets)+1:03d}"
+            
+            _datasets[dataset_id] = {
+                "id": dataset_id,
+                "filename": filename,
+                "data": data,
+                "row_count": len(data),
+                "column_count": len(data[0].keys()),
+                "quality_score": validation.quality_score,
+                "validation": validation.dict() if hasattr(validation, "dict") else validation,
+            }
+        except Exception as e:
+            print(f"Error loading demo dataset {filename}: {e}")
 
 @router.post("/upload", response_model=DatasetResponse)
 async def upload_dataset(
@@ -146,6 +183,10 @@ async def upload_dataset(
     }
     _datasets[dataset_id] = dataset
 
+    # Broadcast to websockets
+    from app.domains.notifications.router import manager
+    await manager.broadcast({"type": "dataset_uploaded", "dataset_id": dataset_id, "filename": file.filename})
+
     return DatasetResponse(
         id=dataset_id,
         filename=file.filename,
@@ -179,3 +220,35 @@ async def get_dataset(dataset_id: str, user: dict = Depends(get_current_user)):
     if not ds:
         raise HTTPException(status_code=404, detail="Dataset not found")
     return ds
+
+
+@router.get("/{dataset_id}/download")
+async def download_dataset(dataset_id: str, user: dict = Depends(get_current_user)):
+    ds = _datasets.get(dataset_id)
+    if not ds:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+        
+    data = ds.get("data", [])
+    if not data:
+        return Response(content="", media_type="text/csv")
+        
+    import io
+    import csv
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=data[0].keys())
+    writer.writeheader()
+    writer.writerows(data)
+    
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={ds.get('filename', 'dataset.csv')}"}
+    )
+
+
+@router.delete("/{dataset_id}")
+async def delete_dataset(dataset_id: str, user: dict = Depends(get_current_user)):
+    if dataset_id not in _datasets:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+    del _datasets[dataset_id]
+    return {"status": "success", "message": "Dataset deleted"}

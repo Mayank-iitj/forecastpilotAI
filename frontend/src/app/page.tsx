@@ -2,13 +2,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Show, UserButton } from "@clerk/nextjs";
 import MagicBento from "@/components/MagicBento";
 import EvilEye from "@/components/EvilEye";
 import { 
-  ArrowRight, Sparkles, LayoutDashboard, BrainCircuit, 
-  BarChart3, Zap, ShieldCheck, CheckCircle2, ChevronDown, MonitorSmartphone, Code2, Cpu,
-  TrendingUp, Target, AlertTriangle, FileText, Link2
+  ArrowRight, LayoutDashboard, BrainCircuit, 
+  BarChart3, Zap, ShieldCheck, CheckCircle2, ChevronDown, Code2,
+  TrendingUp, Target, FileText, Link2, AlertTriangle
 } from "lucide-react";
 import LogoLoop from "@/components/LogoLoop";
 import type { LogoItem } from "@/components/LogoLoop";
@@ -31,16 +30,6 @@ export default function LandingPage() {
     { node: <span className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white/80"><FileText className="w-6 h-6 text-violet-500" /> Automated Reports</span>, title: "Automated Reports" },
     { node: <span className="flex items-center gap-3 text-2xl font-bold tracking-tight text-white/80"><Link2 className="w-6 h-6 text-violet-500" /> Data Connectors</span>, title: "Data Connectors" },
   ];
-  
-  const services = [
-    { title: "Predictive Revenue Models", desc: "Forecast your marketing revenue accurately before spending a dollar.", icon: BarChart3 },
-    { title: "ROAS Optimization", desc: "Allocate budget to channels with the highest predicted return.", icon: Zap },
-    { title: "Scenario Planning", desc: "Test different budget strategies to see their potential impact.", icon: BrainCircuit },
-    { title: "Risk Mitigation", desc: "Identify underperforming campaigns early and reduce wasted spend.", icon: ShieldCheck },
-    { title: "Automated Reporting", desc: "Get real-time insights delivered to your inbox daily or weekly.", icon: LayoutDashboard },
-    { title: "Seamless Integrations", desc: "Connect effortlessly with Facebook Ads, Google Ads, and your CRM.", icon: Code2 },
-  ];
-
   const faqs = [
     { q: "What data sources do you integrate with?", a: "ForecastPilot AI integrates with all major ad platforms (Google Ads, Meta, TikTok) and analytics tools (Google Analytics, Shopify) out of the box." },
     { q: "How accurate are the revenue predictions?", a: "Our models achieve up to 95% accuracy by analyzing historical data, seasonality, and market trends." },
@@ -110,11 +99,11 @@ export default function LandingPage() {
           </div>
           <div className="flex-1 w-full h-[500px] relative rounded-3xl overflow-hidden border border-white/10 bg-[#030303]">
             <FlyingPosters 
-              items={[
+              items={([
                 '/images/copilot_dashboard_1781434963283.png',
                 '/images/copilot_assistant_1781434975317.png',
                 '/images/copilot_navigation_1781434991437.png'
-              ] as any} 
+              ] as any[]) as never[]} 
             />
           </div>
         </div>

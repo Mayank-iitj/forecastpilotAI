@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { apiFetch, API_BASE } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, Eye, Trash2, BarChart3 } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, XCircle, Eye, Trash2, DownloadCloud } from "lucide-react";
+import { toast } from "sonner";
 
 const demoValidation = {
   total_rows: 547,
@@ -30,11 +32,103 @@ export default function DatasetsPage() {
   const [dragOver, setDragOver] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [datasets, setDatasets] = useState<any[]>([]);
+  const [viewingDataset, setViewingDataset] = useState<any>(null);
+  const [loadingView, setLoadingView] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = useCallback(() => {
-    setUploading(true);
-    setTimeout(() => { setUploading(false); setUploaded(true); }, 2000);
+  const loadDatasets = useCallback(async () => {
+    try {
+      const data = await apiFetch("/datasets/");
+      setDatasets(data);
+    } catch (err) {
+      console.error("Failed to load datasets:", err);
+      toast.error("Failed to load datasets");
+    }
   }, []);
+
+  useEffect(() => {
+    loadDatasets();
+
+    // Setup WebSocket for realtime updates
+    const wsUrl = API_BASE.replace("http", "ws") + "/notifications/ws";
+    const ws = new WebSocket(wsUrl);
+    
+    ws.onopen = () => console.log("WebSocket connected");
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "dataset_uploaded") {
+          toast.success(`New dataset available: ${msg.filename}`);
+          loadDatasets();
+        }
+      } catch(e) {}
+    };
+    
+    return () => ws.close();
+  }, [loadDatasets]);
+
+  const handleView = async (id: string) => {
+    setLoadingView(true);
+    try {
+      const data = await apiFetch(`/datasets/${id}`);
+      setViewingDataset(data);
+    } catch (err) {
+      console.error("Failed to load dataset details:", err);
+      toast.error("Failed to load dataset details");
+    } finally {
+      setLoadingView(false);
+    }
+  };
+
+  const handleDownload = (id: string, filename: string) => {
+    window.location.href = `${API_BASE}/datasets/${id}/download`;
+    toast.success(`Downloading ${filename}...`);
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await processUpload(file);
+  };
+
+  const processUpload = async (file: File) => {
+    if (!file.name.endsWith(".csv")) {
+      toast.error("Only CSV files are supported");
+      return;
+    }
+    
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      await apiFetch("/datasets/upload", {
+        method: "POST",
+        body: formData,
+      });
+      setUploaded(true);
+      toast.success("Dataset uploaded successfully!");
+      loadDatasets();
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processUpload(file);
+  };
 
   return (
     <div className="space-y-6">
@@ -54,9 +148,10 @@ export default function DatasetsPage() {
         }`}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
-        onDrop={(e) => { e.preventDefault(); setDragOver(false); handleUpload(); }}
-        onClick={handleUpload}
+        onDrop={handleDrop}
+        onClick={handleUploadClick}
       >
+        <input type="file" ref={fileInputRef} className="hidden" accept=".csv" onChange={handleFileChange} />
         {uploading ? (
           <div className="space-y-4">
             <div className="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto">
@@ -168,12 +263,12 @@ export default function DatasetsPage() {
               </tr>
             </thead>
             <tbody>
-              {previousDatasets.map((ds) => (
+              {datasets.map((ds) => (
                 <tr key={ds.id} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--accent))] transition-colors">
-                  <td className="py-3 px-4 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-green-400" />{ds.name}</td>
-                  <td className="py-3 px-4 font-mono-numbers">{ds.rows.toLocaleString()}</td>
-                  <td className="py-3 px-4"><span className={`font-mono-numbers ${ds.quality > 90 ? "text-green-400" : "text-amber-400"}`}>{ds.quality}%</span></td>
-                  <td className="py-3 px-4 text-[hsl(var(--muted-foreground))]">{ds.date}</td>
+                  <td className="py-3 px-4 flex items-center gap-2"><FileSpreadsheet className="w-4 h-4 text-green-400" />{ds.filename || ds.name}</td>
+                  <td className="py-3 px-4 font-mono-numbers">{(ds.row_count || ds.rows || 0).toLocaleString()}</td>
+                  <td className="py-3 px-4"><span className={`font-mono-numbers ${(ds.quality_score || ds.quality || 0) > 90 ? "text-green-400" : "text-amber-400"}`}>{(ds.quality_score || ds.quality || 0)}%</span></td>
+                  <td className="py-3 px-4 text-[hsl(var(--muted-foreground))]">{ds.date || "Today"}</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ds.status === "validated" ? "risk-low" : "risk-medium"}`}>
                       {ds.status}
@@ -181,8 +276,9 @@ export default function DatasetsPage() {
                   </td>
                   <td className="py-3 px-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors"><Eye className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
-                      <button className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors"><Trash2 className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
+                      <button onClick={() => handleView(ds.id)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors disabled:opacity-50" disabled={loadingView} title="View Data"><Eye className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
+                      <button onClick={() => handleDownload(ds.id, ds.filename || ds.name)} className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors" title="Download CSV"><DownloadCloud className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
+                      <button className="p-1.5 rounded-lg hover:bg-[hsl(var(--muted))] transition-colors" title="Delete Dataset"><Trash2 className="w-4 h-4 text-[hsl(var(--muted-foreground))]" /></button>
                     </div>
                   </td>
                 </tr>
@@ -191,6 +287,64 @@ export default function DatasetsPage() {
           </table>
         </div>
       </div>
+
+      {viewingDataset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-4xl max-h-[80vh] overflow-hidden rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] shadow-2xl flex flex-col"
+          >
+            <div className="flex items-center justify-between p-6 border-b border-[hsl(var(--border))]">
+              <div>
+                <h2 className="text-xl font-bold">{viewingDataset.filename || viewingDataset.name}</h2>
+                <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                  Previewing first 10 rows — {viewingDataset.row_count || viewingDataset.rows} total rows
+                </p>
+              </div>
+              <button 
+                onClick={() => setViewingDataset(null)}
+                className="p-2 rounded-full hover:bg-[hsl(var(--muted))] transition-colors"
+              >
+                <XCircle className="w-6 h-6 text-[hsl(var(--muted-foreground))]" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-auto">
+              {viewingDataset.preview && viewingDataset.preview.length > 0 ? (
+                <div className="overflow-x-auto rounded-xl border border-[hsl(var(--border))]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[hsl(var(--muted))] border-b border-[hsl(var(--border))]">
+                        {Object.keys(viewingDataset.preview[0]).map((col) => (
+                          <th key={col} className="text-left py-3 px-4 font-medium whitespace-nowrap">
+                            {col}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewingDataset.preview.map((row: any, i: number) => (
+                        <tr key={i} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--accent))/50]">
+                          {Object.values(row).map((val: any, j: number) => (
+                            <td key={j} className="py-2.5 px-4 whitespace-nowrap">
+                              {val}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-[hsl(var(--muted-foreground))]">
+                  No preview available.
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

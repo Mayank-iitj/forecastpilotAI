@@ -19,7 +19,7 @@ export default function ReportsPage() {
     fetchReports();
   }, []);
 
-  const fetchReports = async () => {
+  async function fetchReports() {
     try {
       const res = await fetch("http://localhost:8000/api/v1/reports");
       if (res.ok) {

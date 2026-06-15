@@ -141,12 +141,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Top Header */}
           <header className="sticky top-0 z-30 h-14 border-b border-[hsl(var(--border))] glass-strong flex items-center justify-between px-6">
             <div className="flex items-center gap-4">
-              <div className="relative">
+              <div className="relative" suppressHydrationWarning>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
                 <input
                   type="text"
                   placeholder="Search forecasts, reports..."
                   className="pl-9 pr-4 py-1.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))] text-sm w-64 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                  suppressHydrationWarning
                 />
               </div>
             </div>

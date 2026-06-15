@@ -3,6 +3,9 @@ from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from typing import Optional
 from app.core.security import get_current_user
+from app.core.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.data_provider import get_historical_df
 from app.ml.forecast_engine import generate_forecast
 
 router = APIRouter()
@@ -18,8 +21,11 @@ class ForecastRequest(BaseModel):
 async def create_forecast(
     req: ForecastRequest,
     user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
+    df = await get_historical_df(db)
     result = generate_forecast(
+        df=df,
         forecast_days=req.forecast_days,
         channel=req.channel,
         budget_adjustments=req.budget_adjustments,
@@ -94,7 +100,8 @@ async def get_forecasts(user: dict = Depends(get_current_user)):
 
 
 @router.get("/{forecast_id}")
-async def get_forecast(forecast_id: str, user: dict = Depends(get_current_user)):
-    result = generate_forecast(forecast_days=30)
+async def get_forecast(forecast_id: str, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    df = await get_historical_df(db)
+    result = generate_forecast(df=df, forecast_days=30)
     result["id"] = forecast_id
     return result

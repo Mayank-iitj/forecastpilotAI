@@ -12,6 +12,9 @@ async def lifespan(app: FastAPI):
     # Seed demo data on startup
     from app.seed.seed_data import seed_demo_data
     await seed_demo_data()
+    # Load CSV datasets into memory
+    from app.domains.datasets.router import load_demo_datasets
+    load_demo_datasets()
     yield
 
 

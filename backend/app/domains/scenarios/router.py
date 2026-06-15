@@ -3,6 +3,9 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import Optional
 from app.core.security import get_current_user
+from app.core.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.data_provider import get_historical_df
 from app.ml.forecast_engine import generate_forecast
 from app.ml.monte_carlo import run_monte_carlo_simulation
 from app.ml.optimizer import optimize_budget
@@ -37,10 +40,11 @@ class WhatIfRequest(BaseModel):
 
 
 @router.post("/simulate")
-async def simulate_scenario(req: ScenarioRequest, user: dict = Depends(get_current_user)):
-    forecast = generate_forecast(forecast_days=30, budget_adjustments=req.budget_adjustments)
+async def simulate_scenario(req: ScenarioRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    df = await get_historical_df(db)
+    forecast = generate_forecast(df=df, forecast_days=30, budget_adjustments=req.budget_adjustments)
 
-    base_forecast = generate_forecast(forecast_days=30)
+    base_forecast = generate_forecast(df=df, forecast_days=30)
     base_revenue = base_forecast["metrics"]["revenue"]["total"]
     scenario_revenue = forecast["metrics"]["revenue"]["total"]
     incremental = scenario_revenue - base_revenue
@@ -61,18 +65,20 @@ async def simulate_scenario(req: ScenarioRequest, user: dict = Depends(get_curre
 
 
 @router.post("/monte-carlo")
-async def monte_carlo(req: MonteCarloRequest, user: dict = Depends(get_current_user)):
+async def monte_carlo(req: MonteCarloRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    df = await get_historical_df(db)
     return run_monte_carlo_simulation(
-        base_revenue=req.base_revenue,
-        base_roas=req.base_roas,
+        df=df,
         num_simulations=req.num_simulations,
         forecast_days=req.forecast_days,
     )
 
 
 @router.post("/optimize")
-async def optimize(req: OptimizeRequest, user: dict = Depends(get_current_user)):
+async def optimize(req: OptimizeRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    df = await get_historical_df(db)
     return optimize_budget(
+        df=df,
         total_budget=req.total_budget,
         target_revenue=req.target_revenue,
         target_roas=req.target_roas,
@@ -81,14 +87,15 @@ async def optimize(req: OptimizeRequest, user: dict = Depends(get_current_user))
 
 
 @router.post("/what-if")
-async def what_if(req: WhatIfRequest, user: dict = Depends(get_current_user)):
+async def what_if(req: WhatIfRequest, user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Process what-if scenarios using Groq AI."""
     # 1. Parse natural language intent into budget adjustments using Groq
     adjustments = parse_what_if_scenario(req.question)
 
     # 2. Generate baseline and adjusted ML forecasts
-    base = generate_forecast(forecast_days=30)
-    adjusted = generate_forecast(forecast_days=30, budget_adjustments=adjustments)
+    df = await get_historical_df(db)
+    base = generate_forecast(df=df, forecast_days=30)
+    adjusted = generate_forecast(df=df, forecast_days=30, budget_adjustments=adjustments)
     
     base_revenue = base["metrics"]["revenue"]["total"]
     adjusted_revenue = adjusted["metrics"]["revenue"]["total"]

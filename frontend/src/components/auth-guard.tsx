@@ -12,7 +12,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (!token) {
       router.replace("/auth/login");
     } else {
-      setChecked(true);
+      setTimeout(() => setChecked(true), 0);
     }
   }, [router]);
 
