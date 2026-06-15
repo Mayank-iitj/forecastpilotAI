@@ -149,54 +149,7 @@ def load_demo_datasets():
         except Exception as e:
             print(f"Error loading demo dataset {filename}: {e}")
 
-@router.post("/upload", response_model=DatasetResponse)
-async def upload_dataset(
-    file: UploadFile = File(...),
-    user: dict = Depends(get_current_user),
-):
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are accepted")
 
-    content = await file.read()
-    text = content.decode("utf-8")
-
-    # Parse CSV
-    import csv
-    import io
-    reader = csv.DictReader(io.StringIO(text))
-    data = list(reader)
-
-    if not data:
-        raise HTTPException(status_code=400, detail="Empty CSV file")
-
-    validation = _validate_csv_data(data)
-
-    dataset_id = f"ds-{len(_datasets)+1:03d}"
-    dataset = {
-        "id": dataset_id,
-        "filename": file.filename,
-        "data": data,
-        "row_count": len(data),
-        "column_count": len(data[0].keys()),
-        "quality_score": validation.quality_score,
-        "validation": validation.dict() if hasattr(validation, "dict") else validation,
-    }
-    _datasets[dataset_id] = dataset
-
-    # Broadcast to websockets
-    from app.domains.notifications.router import manager
-    await manager.broadcast({"type": "dataset_uploaded", "dataset_id": dataset_id, "filename": file.filename})
-
-    return DatasetResponse(
-        id=dataset_id,
-        filename=file.filename,
-        row_count=len(data),
-        column_count=len(data[0].keys()),
-        quality_score=validation.quality_score,
-        validation=validation,
-        preview=data[:10],
-        status="validated",
-    )
 
 
 @router.get("/")

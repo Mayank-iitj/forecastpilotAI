@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     def db_url(self) -> str:
         return self.POSTGRES_URL or self.DATABASE_URL
 
-    model_config = {"env_file": ".env", "case_sensitive": True}
+    model_config = {"env_file": ".env", "case_sensitive": True, "extra": "ignore"}
 
 
 settings = Settings()
