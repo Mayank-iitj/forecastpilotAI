@@ -128,7 +128,7 @@ def load_demo_datasets():
             
         filepath = os.path.join(demo_dir, filename)
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, "r", encoding="utf-8-sig") as f:
                 content = f.read()
                 reader = csv.DictReader(io.StringIO(content))
                 data = list(reader)

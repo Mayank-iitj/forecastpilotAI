@@ -47,7 +47,11 @@ export default function DatasetsPage() {
     loadDatasets();
 
     // Setup WebSocket for realtime updates
-    const wsUrl = API_BASE.replace("http", "ws") + "/notifications/ws";
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = API_BASE.startsWith('http') 
+      ? API_BASE.replace(/^http/, 'ws') + "/notifications/ws"
+      : `${protocol}//${host}${API_BASE}/notifications/ws`;
     const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => console.log("WebSocket connected");
@@ -128,7 +132,7 @@ export default function DatasetsPage() {
                 <div className="mt-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-[hsl(var(--muted-foreground))]">Total Rows</span>
-                    <span className="font-mono-numbers font-medium">{isLoaded ? (dsInfo.row_count || dsInfo.rows).toLocaleString() : '---'}</span>
+                    <span className="font-mono-numbers font-medium">{isLoaded ? (dsInfo.row_count || dsInfo.rows || 0).toLocaleString() : '---'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-[hsl(var(--muted-foreground))]">Quality Score</span>
@@ -199,7 +203,7 @@ export default function DatasetsPage() {
                         <tr key={i} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--accent))/50]">
                           {Object.values(row).map((val: any, j: number) => (
                             <td key={j} className="py-2.5 px-4 whitespace-nowrap">
-                              {val}
+                              {String(val)}
                             </td>
                           ))}
                         </tr>
