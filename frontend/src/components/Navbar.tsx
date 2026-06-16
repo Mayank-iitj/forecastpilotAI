@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { Show, UserButton } from "@clerk/nextjs";
 import { BarChart3 } from "lucide-react";
-import GooeyNav from "./GooeyNav";
+import PillNav from "./PillNav";
 
 export default function Navbar() {
   return (
@@ -16,7 +16,7 @@ export default function Navbar() {
           ForecastPilot AI
         </div>
         <div className="hidden md:flex items-center text-sm font-medium">
-          <GooeyNav
+          <PillNav
             items={[
               { label: "Home", href: "/" },
               { label: "Product", href: "/product" },
@@ -24,6 +24,10 @@ export default function Navbar() {
               { label: "Integrations", href: "/integrations" },
               { label: "Pricing", href: "/pricing" }
             ]}
+            baseColor="#7c3aed"
+            pillColor="#000000"
+            hoveredPillTextColor="#ffffff"
+            pillTextColor="#d4d4d8"
           />
         </div>
         <div className="flex items-center gap-4">
