@@ -14,7 +14,7 @@ export default function SignUpPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md flex justify-center"
       >
-        <SignUp fallbackRedirectUrl="/dashboard" signInUrl="/auth/login" />
+        <SignUp routing="path" path="/auth/signup" fallbackRedirectUrl="/dashboard" signInUrl="/auth/login" />
       </motion.div>
     </div>
   );

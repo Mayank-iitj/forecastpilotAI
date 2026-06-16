@@ -15,10 +15,6 @@ export default function ReportsPage() {
   const [generating, setGenerating] = useState(false);
   const [selectedReport, setSelectedReport] = useState<any | null>(null);
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
   async function fetchReports() {
     try {
       const res = await fetch("http://localhost:8000/api/v1/reports");
@@ -29,7 +25,11 @@ export default function ReportsPage() {
     } catch (error) {
       console.error("Failed to fetch reports", error);
     }
-  };
+  }
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
   const generate = async (type: string) => {
     setGenerating(true);
