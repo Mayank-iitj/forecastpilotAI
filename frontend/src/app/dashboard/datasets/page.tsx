@@ -6,8 +6,8 @@ import { FileSpreadsheet } from "lucide-react";
 
 const directDatasets = [
   {
-    name: "Meta Ads Performance",
-    file: "meta_ads_campaign_stats.csv",
+    name: "GA4 Session Conversions",
+    file: "ga4_session_source_medium.csv",
     icon: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z",
     color: "text-blue-500",
     bg: "bg-blue-500/10",
@@ -20,8 +20,8 @@ const directDatasets = [
     ]
   },
   {
-    name: "Google Ads Campaigns",
-    file: "google_ads_campaign_stats.csv",
+    name: "Shopify Conversions",
+    file: "shopify_conversion_data.csv",
     icon: "M12.545,10.239v3.821h5.445c-0.712,2.315-2.757,3.951-5.445,3.951c-3.131,0-5.674-2.543-5.674-5.674s2.543-5.674,5.674-5.674c1.465,0,2.793,0.56,3.805,1.482l2.842-2.842C17.477,3.582,15.17,2.5,12.545,2.5C7.265,2.5,3,6.765,3,12.045s4.265,9.545,9.545,9.545c5.503,0,9.155-3.874,9.155-9.303c0-0.655-0.076-1.285-0.211-1.888L12.545,10.239z",
     color: "text-green-500",
     bg: "bg-green-500/10",

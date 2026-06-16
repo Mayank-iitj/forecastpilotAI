@@ -4,13 +4,13 @@ import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Tooltip, Cell, PieChart, Pie } from "recharts";
 
 const channels = [
-  { name: "Google Ads", revenue: 45000, roas: 4.22, spend: 10667, conversions: 529, contribution: 29.4, color: "#4285F4" },
-  { name: "Meta Ads", revenue: 38000, roas: 3.80, spend: 10000, conversions: 447, contribution: 24.8, color: "#1877F2" },
-  { name: "Organic", revenue: 28000, roas: 0, spend: 0, conversions: 329, contribution: 18.3, color: "#34A853" },
-  { name: "Email", revenue: 15000, roas: 42.0, spend: 357, conversions: 176, contribution: 9.8, color: "#9333EA" },
-  { name: "Microsoft", revenue: 12000, roas: 3.50, spend: 3429, conversions: 141, contribution: 7.8, color: "#00A4EF" },
-  { name: "Affiliate", revenue: 8500, roas: 5.10, spend: 1667, conversions: 100, contribution: 5.6, color: "#FF6D01" },
-  { name: "Display", revenue: 6500, roas: 2.10, spend: 3095, conversions: 76, contribution: 4.2, color: "#F59E0B" },
+  { name: "Google Ads", revenue: 45000, roas: [3.95, 4.45], spend: 10667, conversions: 529, contribution: 29.4, color: "#4285F4" },
+  { name: "Meta Ads", revenue: 38000, roas: [3.50, 4.10], spend: 10000, conversions: 447, contribution: 24.8, color: "#1877F2" },
+  { name: "Organic", revenue: 28000, roas: [], spend: 0, conversions: 329, contribution: 18.3, color: "#34A853" },
+  { name: "Email", revenue: 15000, roas: [38.5, 45.2], spend: 357, conversions: 176, contribution: 9.8, color: "#9333EA" },
+  { name: "Microsoft", revenue: 12000, roas: [3.15, 3.85], spend: 3429, conversions: 141, contribution: 7.8, color: "#00A4EF" },
+  { name: "Affiliate", revenue: 8500, roas: [4.80, 5.40], spend: 1667, conversions: 100, contribution: 5.6, color: "#FF6D01" },
+  { name: "Display", revenue: 6500, roas: [1.80, 2.40], spend: 3095, conversions: 76, contribution: 4.2, color: "#F59E0B" },
 ];
 
 export default function ChannelForecastPage() {
@@ -65,7 +65,7 @@ export default function ChannelForecastPage() {
               <tr key={i} className="border-b border-[hsl(var(--border))] last:border-0 hover:bg-[hsl(var(--accent))] transition-colors">
                 <td className="py-3 px-4 flex items-center gap-2"><div className="w-3 h-3 rounded-full" style={{ backgroundColor: ch.color }} />{ch.name}</td>
                 <td className="py-3 px-4 text-right font-mono-numbers">${ch.revenue.toLocaleString()}</td>
-                <td className="py-3 px-4 text-right font-mono-numbers">{ch.roas > 0 ? `${ch.roas}x` : "—"}</td>
+                <td className="py-3 px-4 text-right font-mono-numbers whitespace-nowrap text-[13px]">{ch.roas.length > 0 ? `${ch.roas[0]}x - ${ch.roas[1]}x` : "—"}</td>
                 <td className="py-3 px-4 text-right font-mono-numbers">${ch.spend.toLocaleString()}</td>
                 <td className="py-3 px-4 text-right font-mono-numbers">{ch.conversions.toLocaleString()}</td>
                 <td className="py-3 px-4 text-right font-mono-numbers">{ch.contribution}%</td>
