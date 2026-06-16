@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import LogoLoop from "@/components/LogoLoop";
 import type { LogoItem } from "@/components/LogoLoop";
-import FlyingPosters from "@/components/FlyingPosters";
+import Strands from "@/components/Strands";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MagicRings from "@/components/MagicRings";
@@ -99,13 +99,27 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex-1 w-full h-[500px] relative rounded-3xl overflow-hidden border border-white/10 bg-[#030303]">
-            <FlyingPosters 
-              items={([
-                '/images/copilot_dashboard_1781434963283.png',
-                '/images/copilot_assistant_1781434975317.png',
-                '/images/copilot_navigation_1781434991437.png'
-              ] as any[]) as never[]} 
-            />
+            <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+              <Strands
+                colors={["#F97316","#7C3AED","#06B6D4"]}
+                count={3}
+                speed={0.5}
+                amplitude={1}
+                waviness={1}
+                thickness={0.7}
+                glow={2.6}
+                taper={3}
+                spread={1}
+                intensity={0.6}
+                saturation={1.5}
+                opacity={1}
+                scale={1.5}
+                glass={false}
+                refraction={1}
+                dispersion={1}
+                glassSize={1}
+              />
+            </div>
           </div>
         </div>
       </section>
