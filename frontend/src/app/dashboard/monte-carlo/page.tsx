@@ -13,16 +13,27 @@ export default function MonteCarloPage() {
 
   const run = async () => { 
     setRunning(true); 
+    
+    // Fallback timeout to un-freeze UI if fetch hangs
+    const timeoutId = setTimeout(() => setRunning(false), 15000);
+
     try {
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 10000);
+      
       const res = await apiFetch("/scenarios/monte-carlo", {
         method: "POST",
-        body: JSON.stringify({ num_simulations: simCount, base_revenue: 153000, base_roas: 5.24, forecast_days: 30 })
+        body: JSON.stringify({ num_simulations: simCount, base_revenue: 153000, base_roas: 5.24, forecast_days: 30 }),
+        signal: controller.signal
       });
+      clearTimeout(fetchTimeout);
       setData(res);
       setComplete(true);
     } catch (e) {
-      console.error(e);
+      console.error("Monte Carlo Error:", e);
+      alert("Failed to run simulation. Please check backend logs or try again.");
     } finally {
+      clearTimeout(timeoutId);
       setRunning(false); 
     }
   };
@@ -31,10 +42,10 @@ export default function MonteCarloPage() {
     run();
   }, []);
 
-  const revDist = data ? data.revenue.histogram.bins.map((val: number, i: number) => ({ value: val, density: data.revenue.histogram.density[i] })) : [];
-  const roasDist = data ? data.roas.histogram.bins.map((val: number, i: number) => ({ value: val, density: data.roas.histogram.density[i] })) : [];
+  const revDist = data?.revenue?.histogram?.bins ? data.revenue.histogram.bins.map((val: number, i: number) => ({ value: val, density: data.revenue.histogram.density[i] })) : [];
+  const roasDist = data?.roas?.histogram?.bins ? data.roas.histogram.bins.map((val: number, i: number) => ({ value: val, density: data.roas.histogram.density[i] })) : [];
   
-  const fanData = data ? data.fan_chart.p50.map((_: any, i: number) => ({
+  const fanData = data?.fan_chart?.p50 ? data.fan_chart.p50.map((_: any, i: number) => ({
     day: `Day ${i + 1}`,
     p10: data.fan_chart.p10[i],
     p25: data.fan_chart.p25[i],
@@ -43,14 +54,14 @@ export default function MonteCarloPage() {
     p90: data.fan_chart.p90[i],
   })) : [];
 
-  const percentiles = data ? [
-    { label: "P5", revenue: `$${(data.revenue.percentiles.p5).toLocaleString()}`, roas: `${data.roas.percentiles.p5}x` },
-    { label: "P10", revenue: `$${(data.revenue.percentiles.p10).toLocaleString()}`, roas: `${data.roas.percentiles.p10}x` },
-    { label: "P25", revenue: `$${(data.revenue.percentiles.p25).toLocaleString()}`, roas: `${data.roas.percentiles.p25}x` },
-    { label: "P50", revenue: `$${(data.revenue.percentiles.p50).toLocaleString()}`, roas: `${data.roas.percentiles.p50}x` },
-    { label: "P75", revenue: `$${(data.revenue.percentiles.p75).toLocaleString()}`, roas: `${data.roas.percentiles.p75}x` },
-    { label: "P90", revenue: `$${(data.revenue.percentiles.p90).toLocaleString()}`, roas: `${data.roas.percentiles.p90}x` },
-    { label: "P95", revenue: `$${(data.revenue.percentiles.p95).toLocaleString()}`, roas: `${data.roas.percentiles.p95}x` },
+  const percentiles = data?.revenue?.percentiles ? [
+    { label: "P5", revenue: `$${(data.revenue.percentiles.p5 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p5 || 0}x` },
+    { label: "P10", revenue: `$${(data.revenue.percentiles.p10 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p10 || 0}x` },
+    { label: "P25", revenue: `$${(data.revenue.percentiles.p25 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p25 || 0}x` },
+    { label: "P50", revenue: `$${(data.revenue.percentiles.p50 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p50 || 0}x` },
+    { label: "P75", revenue: `$${(data.revenue.percentiles.p75 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p75 || 0}x` },
+    { label: "P90", revenue: `$${(data.revenue.percentiles.p90 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p90 || 0}x` },
+    { label: "P95", revenue: `$${(data.revenue.percentiles.p95 || 0).toLocaleString()}`, roas: `${data.roas?.percentiles?.p95 || 0}x` },
   ] : [];
 
   return (
