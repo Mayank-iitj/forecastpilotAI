@@ -45,6 +45,8 @@ export default function DashboardPage() {
   const [revenueTrend, setRevenueTrend] = useState<any[]>([]);
   const [channelData, setChannelData] = useState<any[]>([]);
   const [kpiCards, setKpiCards] = useState<any[]>(defaultKpis);
+  const [forecastHealth, setForecastHealth] = useState({ confidence: 87.3, accuracy: 91.2, stability: "High" });
+  const [activity, setActivity] = useState(recentActivity);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,6 +56,8 @@ export default function DashboardPage() {
         const data = res.data;
         if (data.revenueTrend) setRevenueTrend(data.revenueTrend);
         if (data.channelData) setChannelData(data.channelData);
+        if (data.forecastHealth) setForecastHealth(data.forecastHealth);
+        if (data.recentActivity) setActivity(data.recentActivity);
         if (data.kpiCards) {
           // Merge dynamic data with static icons
           const mergedKpis = defaultKpis.map((defaultKpi, index) => ({
@@ -207,10 +211,10 @@ export default function DashboardPage() {
           <h3 className="font-semibold mb-4">Forecast Health</h3>
           <div className="flex items-center justify-center">
             <ResponsiveContainer width={200} height={200}>
-              <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="100%" data={[{ value: 87.3, fill: "#3B82F6" }]} startAngle={90} endAngle={-270}>
+              <RadialBarChart cx="50%" cy="50%" innerRadius="60%" outerRadius="100%" data={[{ value: forecastHealth.confidence, fill: "#3B82F6" }]} startAngle={90} endAngle={-270}>
                 <RadialBar dataKey="value" cornerRadius={10} background={{ fill: "hsl(215 27% 17%)" }} />
                 <text x="50%" y="45%" textAnchor="middle" className="text-2xl font-bold fill-current" style={{ fill: "hsl(210 40% 98%)" }}>
-                  87.3%
+                  {forecastHealth.confidence}%
                 </text>
                 <text x="50%" y="60%" textAnchor="middle" className="text-xs" style={{ fill: "hsl(215 20% 65%)" }}>
                   Confidence
@@ -221,11 +225,11 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div className="text-center p-3 rounded-lg bg-[hsl(var(--muted))]">
               <div className="text-xs text-[hsl(var(--muted-foreground))]">Accuracy</div>
-              <div className="font-bold font-mono-numbers text-green-400">91.2%</div>
+              <div className="font-bold font-mono-numbers text-green-400">{forecastHealth.accuracy}%</div>
             </div>
             <div className="text-center p-3 rounded-lg bg-[hsl(var(--muted))]">
               <div className="text-xs text-[hsl(var(--muted-foreground))]">Stability</div>
-              <div className="font-bold font-mono-numbers text-blue-400">High</div>
+              <div className="font-bold font-mono-numbers text-blue-400">{forecastHealth.stability}</div>
             </div>
           </div>
         </motion.div>
@@ -239,7 +243,10 @@ export default function DashboardPage() {
         >
           <h3 className="font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-4">
-            {recentActivity.map((item, i) => (
+            {activity.map((item: any, i: number) => {
+              const icons: any = { CheckCircle2, BarChart3, Activity, AlertTriangle, Sparkles };
+              const IconComponent = typeof item.icon === 'string' ? (icons[item.icon] || Sparkles) : item.icon;
+              return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -10 }}
@@ -248,7 +255,7 @@ export default function DashboardPage() {
                 className="flex items-start gap-3 p-3 rounded-lg hover:bg-[hsl(var(--accent))] transition-colors"
               >
                 <div className={`w-8 h-8 rounded-lg bg-[hsl(var(--muted))] flex items-center justify-center ${item.color}`}>
-                  <item.icon className="w-4 h-4" />
+                  <IconComponent className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium">{item.action}</div>
@@ -256,7 +263,7 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-xs text-[hsl(var(--muted-foreground))] whitespace-nowrap">{item.time}</span>
               </motion.div>
-            ))}
+            )})}
           </div>
         </motion.div>
       </div>
