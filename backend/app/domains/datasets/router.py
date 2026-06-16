@@ -116,7 +116,9 @@ def load_demo_datasets():
     import os
     import csv
     import io
-    demo_dir = "demo_datasets"
+    import pathlib
+    base_dir = pathlib.Path(__file__).parent.parent.parent.parent
+    demo_dir = str(base_dir / "demo_datasets")
     if not os.path.exists(demo_dir):
         return
         

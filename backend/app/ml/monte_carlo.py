@@ -23,6 +23,8 @@ def run_monte_carlo_simulation(
     # 2. Calculate daily returns (log returns) for revenue and roas
     # Filter out zeros to avoid log issues
     daily_df = daily_df[daily_df['revenue'] > 0].copy()
+    if daily_df.empty:
+        raise ValueError("No positive revenue data available for Monte Carlo simulation.")
     daily_df['revenue_return'] = np.log(daily_df['revenue'] / daily_df['revenue'].shift(1))
     
     daily_df['roas'] = daily_df['revenue'] / np.maximum(daily_df['spend'], 1)

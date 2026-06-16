@@ -27,7 +27,16 @@ Output strictly valid JSON with no markdown formatting.
             response_format={"type": "json_object"}
         )
         content = response.choices[0].message.content
-        return json.loads(content)
+        result = json.loads(content)
+        cleaned = {}
+        for k, v in result.items():
+            try:
+                if isinstance(v, str):
+                    v = v.replace('%', '').strip()
+                cleaned[k] = float(v)
+            except (ValueError, TypeError):
+                continue
+        return cleaned
     except Exception as e:
         print(f"Error parsing scenario: {e}")
         return {}

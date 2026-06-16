@@ -106,7 +106,7 @@ def generate_forecast(
         ch_spend = spend_daily * spend_prop
         
         if budget_adjustments and ch_name in budget_adjustments:
-            adj = 1 + budget_adjustments[ch_name] / 100
+            adj = max(0.0, 1 + budget_adjustments[ch_name] / 100)
             ch_rev = ch_rev * (adj ** 0.7)  # Diminishing returns assumption for what-if
             ch_spend = ch_spend * adj
             

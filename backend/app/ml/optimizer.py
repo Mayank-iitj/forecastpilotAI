@@ -30,8 +30,17 @@ def fit_channel_curves(df: pd.DataFrame):
             continue
 
         mean_roas = y_data.sum() / max(x_data.sum(), 1)
-        p0 = [0.5, 0.3, mean_roas, x_data.max()]
-        bounds = ([0.01, 0.01, 0.01, x_data.mean()], [5.0, 5.0, 100.0, x_data.max() * 5])
+        mean_roas_clamped = max(0.01, min(100.0, mean_roas))
+        
+        sat_lower = max(0.01, x_data.mean())
+        sat_upper = max(0.02, x_data.max() * 5)
+        sat_upper = max(sat_upper, sat_lower + 0.01)
+        
+        p0 = [0.5, 0.3, mean_roas_clamped, max(sat_lower, min(x_data.max(), sat_upper))]
+        bounds = (
+            [0.01, 0.01, 0.01, sat_lower], 
+            [5.0, 5.0, 100.0, sat_upper]
+        )
         
         try:
             popt, _ = curve_fit(_response_curve, x_data, y_data, p0=p0, bounds=bounds, maxfev=2000)
@@ -42,7 +51,7 @@ def fit_channel_curves(df: pd.DataFrame):
                 "saturation": popt[3],
                 "baseline_revenue": 0
             }
-        except RuntimeError:
+        except Exception:
             curves[ch] = {"alpha": 0.5, "beta": 0.3, "max_efficiency": mean_roas, "saturation": x_data.max(), "baseline_revenue": 0}
 
     return curves
