@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import MagicBento from "@/components/MagicBento";
 import EvilEye from "@/components/EvilEye";
 import { 
@@ -73,13 +74,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Link href="/auth/signup" className="w-full sm:w-auto hover:scale-105 transition-transform">
+            <div onClick={() => toast("Rolling out soon")} className="w-full sm:w-auto hover:scale-105 transition-transform cursor-pointer">
               <StarBorder as="div" color="#8B5CF6" speed="4s" className="w-full">
                 <span className="flex items-center justify-center gap-2 font-semibold text-sm">
                   Start Free Trial <ArrowRight className="w-4 h-4" />
                 </span>
               </StarBorder>
-            </Link>
+            </div>
             <Link href="#features" className="w-full sm:w-auto px-8 py-3.5 bg-transparent text-white font-semibold rounded-full border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm flex items-center justify-center gap-2">
               See How It Works
             </Link>
@@ -133,11 +134,11 @@ export default function LandingPage() {
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">Data-Driven Precision.</h2>
               <p className="text-[#8B8B9E] mt-4 text-lg">ForecastPilot AI turns your historical campaign data into actionable revenue predictions.</p>
             </div>
-            <Link href="/auth/signup" className="shrink-0 hover:scale-105 transition-transform">
+            <div onClick={() => toast("Rolling out soon")} className="shrink-0 hover:scale-105 transition-transform cursor-pointer">
               <StarBorder as="div" color="#8B5CF6" speed="4s">
                 <span className="font-semibold text-sm">Try It Now</span>
               </StarBorder>
-            </Link>
+            </div>
           </div>
 
           <MagicBento 
