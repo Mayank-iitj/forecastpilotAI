@@ -1,7 +1,10 @@
+"use client";
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PricingPage() {
   const plans = [
@@ -71,7 +74,10 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <button className={`w-full py-4 rounded-xl font-bold transition-all ${plan.popular ? 'bg-violet-600 hover:bg-violet-500 text-white' : 'bg-white text-black hover:bg-neutral-200'}`}>
+              <button 
+                onClick={() => toast.info("Rolling out soon")}
+                className={`w-full py-4 rounded-xl font-bold transition-all ${plan.popular ? 'bg-violet-600 hover:bg-violet-500 text-white' : 'bg-white text-black hover:bg-neutral-200'}`}
+              >
                 {plan.buttonText}
               </button>
             </div>
