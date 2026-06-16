@@ -31,7 +31,9 @@ export function formatPercent(value: number): string {
   return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
 }
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+export const API_BASE = typeof window !== 'undefined' 
+  ? `${window.location.protocol}//${window.location.hostname}:8000/api/v1` 
+  : "http://127.0.0.1:8000/api/v1";
 
 export async function apiFetch(path: string, options?: RequestInit) {
   const headers: Record<string, string> = {
